@@ -2,8 +2,7 @@
 #include "KMeans.h"
 using namespace std;
 
-int main()
-{
+int main() {
     double data[] = {
         0.0, 0.2, 0.4,
         0.3, 0.2, 0.4,
@@ -26,8 +25,7 @@ int main()
     kmeans->SetInitMode(KMeans::InitUniform);
 	kmeans->Cluster(data,size,labels);
 
-	for(int i = 0; i < size; ++i)
-	{
+	for(int i = 0; i < size; ++i) {
 	    printf("%f, %f, %f belongs to %d cluster\n", data[i*dim+0], data[i*dim+1], data[i*dim+2], labels[i]);
 	}
 
