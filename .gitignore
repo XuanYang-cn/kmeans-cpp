@@ -1,0 +1,3 @@
+*.idea
+*.sw[po]
+cmake_build/
