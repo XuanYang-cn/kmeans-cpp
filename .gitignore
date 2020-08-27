@@ -1,3 +1,5 @@
 *.idea
 *.sw[po]
 cmake_build/
+compile_commands.json
+.clangd/
