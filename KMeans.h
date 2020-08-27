@@ -1,14 +1,7 @@
-/***************************************************************************
-Module Name:
-	KMeans
-
-History:
-	2003/10/16	Fei Wang
-	2013 luxiaoxun
-***************************************************************************/
-
 #pragma once
 #include <fstream>
+#include <cstring> // memcpy
+using namespace std;
 
 class KMeans
 {

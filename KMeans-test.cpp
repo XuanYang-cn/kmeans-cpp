@@ -1,5 +1,5 @@
 #include <iostream>
-#include "k-means.h"
+#include "KMeans.h"
 using namespace std;
 
 int main()

@@ -1,15 +1,8 @@
-/***************************************************************************
-Module Name:
-	KMeans
-
-History:
-	2003/10/16	Fei Wang
-	2013 luxiaoxun
-***************************************************************************/
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include <iostream>
+#include <cassert> // assert
 #include "KMeans.h"
 using namespace std;
 
