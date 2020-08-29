@@ -7,14 +7,14 @@
 using namespace std;
 
 
-KMeans::KMeans(int dimNum, int clusterNum) {
-	m_dimNum = dimNum;
+KMeans::KMeans(int d, int clusterNum) {
+	m_d = d;
 	m_clusterNum = clusterNum;
 
 	m_means = new double *[m_clusterNum];
 	for (int i = 0; i < m_clusterNum; i++) {
-		m_means[i] = new double[m_dimNum];
-		memset(m_means[i], 0, sizeof(double) * m_dimNum);
+		m_means[i] = new double[m_d];
+		memset(m_means[i], 0, sizeof(double) * m_d);
 	}
 
 	m_initMode = InitRandom;
@@ -40,13 +40,13 @@ KMeans::Cluster(const char* sampleFileName, const char* labelFileName) {
 	sampleFile.read((char*)&size, sizeof(int));
 	sampleFile.read((char*)&dim, sizeof(int));
 	assert(size >= m_clusterNum);
-	assert(dim == m_dimNum);
+	assert(dim == m_d);
 
 	// Initialize model
 	Init(sampleFile);
 
 	// Recursion
-	double* x = new double[m_dimNum];	// Sample data
+	double* x = new double[m_d];	// Sample data
 	int label = -1;		// Class index
 	double iterNum = 0;
 	double lastCost = 0;
@@ -56,13 +56,13 @@ KMeans::Cluster(const char* sampleFileName, const char* labelFileName) {
 	int* counts = new int[m_clusterNum];
 	double** next_means = new double*[m_clusterNum];	// New model for reestimation
 	for (int i = 0; i < m_clusterNum; i++) {
-		next_means[i] = new double[m_dimNum];
+		next_means[i] = new double[m_d];
 	}
 
 	while (loop) {
 		memset(counts, 0, sizeof(int) * m_clusterNum);
 		for (int i = 0; i < m_clusterNum; i++) {
-			memset(next_means[i], 0, sizeof(double) * m_dimNum);
+			memset(next_means[i], 0, sizeof(double) * m_d);
 		}
 
 		lastCost = currCost;
@@ -73,11 +73,11 @@ KMeans::Cluster(const char* sampleFileName, const char* labelFileName) {
 
 		// Classification
 		for (int i = 0; i < size; i++) {
-			sampleFile.read((char*)x, sizeof(double) * m_dimNum);
+			sampleFile.read((char*)x, sizeof(double) * m_d);
 			currCost += GetLabel(x, &label);
 
 			counts[label]++;
-			for (int d = 0; d < m_dimNum; d++) {
+			for (int d = 0; d < m_d; d++) {
 				next_means[label][d] += x[d];
 			}
 		}
@@ -86,10 +86,10 @@ KMeans::Cluster(const char* sampleFileName, const char* labelFileName) {
 		// Reestimation
 		for (int i = 0; i < m_clusterNum; i++) {
 			if (counts[i] > 0) {
-				for (int d = 0; d < m_dimNum; d++) {
+				for (int d = 0; d < m_d; d++) {
 					next_means[i][d] /= counts[i];
 				}
-				memcpy(m_means[i], next_means[i], sizeof(double) * m_dimNum);
+				memcpy(m_means[i], next_means[i], sizeof(double) * m_d);
 			}
 		}
 
@@ -114,7 +114,7 @@ KMeans::Cluster(const char* sampleFileName, const char* labelFileName) {
 	sampleFile.seekg(sizeof(int) * 2, ios_base::beg);
 
 	for (int i = 0; i < size; i++) {
-		sampleFile.read((char*)x, sizeof(double) * m_dimNum);
+		sampleFile.read((char*)x, sizeof(double) * m_d);
 		GetLabel(x, &label);
 		labelFile.write((char*)&label, sizeof(int));
 	}
@@ -142,7 +142,7 @@ KMeans::Cluster(double *data, int N, int *Label) {
 	Init(data,N);
 
 	// Recursion
-	double* x = new double[m_dimNum];	// Sample data
+	double* x = new double[m_d];	// Sample data
 	int label = -1;		// Class index
 	double iterNum = 0;
 	double lastCost = 0;
@@ -152,13 +152,13 @@ KMeans::Cluster(double *data, int N, int *Label) {
 	int* counts = new int[m_clusterNum];
 	double** next_means = new double*[m_clusterNum];	// New model for reestimation
 	for (int i = 0; i < m_clusterNum; i++) {
-		next_means[i] = new double[m_dimNum];
+		next_means[i] = new double[m_d];
 	}
 
 	while (loop) {
 		memset(counts, 0, sizeof(int) * m_clusterNum);
 		for (int i = 0; i < m_clusterNum; i++) {
-			memset(next_means[i], 0, sizeof(double) * m_dimNum);
+			memset(next_means[i], 0, sizeof(double) * m_d);
 		}
 
 		lastCost = currCost;
@@ -166,13 +166,13 @@ KMeans::Cluster(double *data, int N, int *Label) {
 
 		// Classification
 		for (int i = 0; i < size; i++) {
-			for(int j = 0; j < m_dimNum; j++)
-				x[j] = data[i*m_dimNum+j];
+			for(int j = 0; j < m_d; j++)
+				x[j] = data[i*m_d+j];
 
 			currCost += GetLabel(x, &label);
 
 			counts[label]++;
-			for (int d = 0; d < m_dimNum; d++) {
+			for (int d = 0; d < m_d; d++) {
 				next_means[label][d] += x[d];
 			}
 		}
@@ -181,10 +181,10 @@ KMeans::Cluster(double *data, int N, int *Label) {
 		// Reestimation
 		for (int i = 0; i < m_clusterNum; i++) {
 			if (counts[i] > 0) {
-				for (int d = 0; d < m_dimNum; d++) {
+				for (int d = 0; d < m_d; d++) {
 					next_means[i][d] /= counts[i];
 				}
-                memcpy(m_means[i], next_means[i], sizeof(double) * m_dimNum);
+                memcpy(m_means[i], next_means[i], sizeof(double) * m_d);
 			}
 		}
 
@@ -203,8 +203,8 @@ KMeans::Cluster(double *data, int N, int *Label) {
 
 	// Output the label file
 	for (int i = 0; i < size; i++) {
-        for(int j = 0; j < m_dimNum; j++) {
-            x[j] = data[i*m_dimNum+j];
+        for(int j = 0; j < m_d; j++) {
+            x[j] = data[i*m_d+j];
         }
 		GetLabel(x, &label);
 		Label[i] = label;
@@ -223,27 +223,27 @@ KMeans::Init(double *data, int N) {
 
 	if (m_initMode ==  InitRandom) {
 		int inteval = size / m_clusterNum;
-		double* sample = new double[m_dimNum];
+		double* sample = new double[m_d];
 
 		// Seed the random-number generator with current time
 		srand((unsigned)time(NULL));
 
 		for (int i = 0; i < m_clusterNum; i++) {
 			int select = inteval * i + (inteval - 1) * rand() / RAND_MAX;
-			for(int j = 0; j < m_dimNum; j++)
-				sample[j] = data[select*m_dimNum+j];
-			memcpy(m_means[i], sample, sizeof(double) * m_dimNum);
+			for(int j = 0; j < m_d; j++)
+				sample[j] = data[select*m_d+j];
+			memcpy(m_means[i], sample, sizeof(double) * m_d);
 		}
 
 		delete[] sample;
 	} else if (m_initMode == InitUniform) {
-		double* sample = new double[m_dimNum];
+		double* sample = new double[m_d];
 
 		for (int i = 0; i < m_clusterNum; i++) {
 			int select = i * size / m_clusterNum;
-			for(int j = 0; j < m_dimNum; j++)
-				sample[j] = data[select*m_dimNum+j];
-			memcpy(m_means[i], sample, sizeof(double) * m_dimNum);
+			for(int j = 0; j < m_d; j++)
+				sample[j] = data[select*m_d+j];
+			memcpy(m_means[i], sample, sizeof(double) * m_d);
 		}
 
 		delete[] sample;
@@ -260,31 +260,31 @@ KMeans::Init(ifstream& sampleFile) {
 
 	if (m_initMode ==  InitRandom) {
 		int inteval = size / m_clusterNum;
-		double* sample = new double[m_dimNum];
+		double* sample = new double[m_d];
 
 		// Seed the random-number generator with current time
 		srand((unsigned)time(NULL));
 
 		for (int i = 0; i < m_clusterNum; i++) {
 			int select = inteval * i + (inteval - 1) * rand() / RAND_MAX;
-			int offset = sizeof(int) * 2 + select * sizeof(double) * m_dimNum;
+			int offset = sizeof(int) * 2 + select * sizeof(double) * m_d;
 
 			sampleFile.seekg(offset, ios_base::beg);
-			sampleFile.read((char*)sample, sizeof(double) * m_dimNum);
-			memcpy(m_means[i], sample, sizeof(double) * m_dimNum);
+			sampleFile.read((char*)sample, sizeof(double) * m_d);
+			memcpy(m_means[i], sample, sizeof(double) * m_d);
 		}
 
 		delete[] sample;
 	} else if (m_initMode == InitUniform) {
-		double* sample = new double[m_dimNum];
+		double* sample = new double[m_d];
 
 		for (int i = 0; i < m_clusterNum; i++) {
 			int select = i * size / m_clusterNum;
-			int offset = sizeof(int) * 2 + select * sizeof(double) * m_dimNum;
+			int offset = sizeof(int) * 2 + select * sizeof(double) * m_d;
 
 			sampleFile.seekg(offset, ios_base::beg);
-			sampleFile.read((char*)sample, sizeof(double) * m_dimNum);
-			memcpy(m_means[i], sample, sizeof(double) * m_dimNum);
+			sampleFile.read((char*)sample, sizeof(double) * m_d);
+			memcpy(m_means[i], sample, sizeof(double) * m_d);
 		}
 
 		delete[] sample;
@@ -297,7 +297,7 @@ double
 KMeans::GetLabel(const double* sample, int* label) {
 	double dist = -1;
 	for (int i = 0; i < m_clusterNum; i++) {
-		double temp = CalcDistance(sample, m_means[i], m_dimNum);
+		double temp = CalcDistance(sample, m_means[i], m_d);
 		if (temp < dist || dist == -1) {
 			dist = temp;
 			*label = i;
@@ -307,9 +307,9 @@ KMeans::GetLabel(const double* sample, int* label) {
 }
 
 double
-KMeans::CalcDistance(const double* x, const double* u, int dimNum) {
+KMeans::CalcDistance(const double* x, const double* u, int d) {
 	double temp = 0;
-	for (int d = 0; d < dimNum; d++) {
+	for (int d = 0; d < d; d++) {
 		temp += (x[d] - u[d]) * (x[d] - u[d]);
 	}
 	return sqrt(temp);
@@ -318,12 +318,12 @@ KMeans::CalcDistance(const double* x, const double* u, int dimNum) {
 ostream&
 operator<<(ostream& out, KMeans& kmeans) {
 	out << "<KMeans>" << endl;
-	out << "<DimNum> " << kmeans.m_dimNum << " </DimNum>" << endl;
+	out << "<DimNum> " << kmeans.m_d << " </DimNum>" << endl;
 	out << "<ClusterNum> " << kmeans.m_clusterNum << " </CluterNum>" << endl;
 
 	out << "<Mean>" << endl;
 	for (int i = 0; i < kmeans.m_clusterNum; i++) {
-		for (int d = 0; d < kmeans.m_dimNum; d++) {
+		for (int d = 0; d < kmeans.m_d; d++) {
 			out << kmeans.m_means[i][d] << " ";
 		}
 		out << endl;

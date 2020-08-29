@@ -12,12 +12,13 @@ public:
 		InitUniform,
 	};
 
-	KMeans(int dimNum = 1, int clusterNum = 1);
+	KMeans(int d = 1, int clusterNum = 1);
+
 	~KMeans();
 
 	void
     SetMean(int i, const double* u) {
-        memcpy(m_means[i], u, sizeof(double) * m_dimNum);
+        memcpy(m_means[i], u, sizeof(double) * m_d);
     }
 
 	void
@@ -64,6 +65,7 @@ public:
     
 	void
     Init(std::ifstream& sampleFile);
+
 	void
     Init(double *data, int N);
 
@@ -74,7 +76,7 @@ public:
     std::ostream& operator<<(std::ostream& out, KMeans& kmeans);
 
 private:
-	int m_dimNum;
+	int m_d;                // dimension of the vectors
     
 	int m_clusterNum;
     
@@ -88,5 +90,5 @@ private:
     GetLabel(const double* x, int* label);
 
 	double
-    CalcDistance(const double* x, const double* u, int dimNum);
+    CalcDistance(const double* x, const double* u, int d);
 };
